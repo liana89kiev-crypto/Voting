@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Голосування — Спортивний менеджмент</title>
+<style>
+:root{
+  --blue:#1a56db;--blue-light:#e8f0fe;--blue-mid:#3b82f6;--blue-dark:#1e3a8a;
+  --bg:#f0f4ff;--white:#fff;--border:#c7d7f7;--text:#1e293b;--muted:#64748b;
+  --green:#16a34a;--green-bg:#dcfce7;--amber:#b45309;--amber-bg:#fef3c7;
+  --red:#dc2626;--red-bg:#fee2e2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.container{max-width:660px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.page{display:none}.page.active{display:block}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem}
+.logo-icon{width:40px;height:40px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:22px;height:22px;fill:white}
+.logo-text h1{font-size:18px;font-weight:700;color:var(--blue-dark)}
+.logo-text p{font-size:12px;color:var(--muted)}
+h2{font-size:20px;font-weight:700;color:var(--blue-dark);margin-bottom:4px}
+.sub{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:.75rem;box-shadow:0 1px 3px rgba(26,86,219,.07)}
+.instr-card{background:var(--blue-light);border:1.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.instr-card h3{font-size:15px;font-weight:700;color:var(--blue-dark);margin-bottom:.75rem}
+.instr-row{display:flex;gap:10px;margin-bottom:.5rem;align-items:flex-start}
+.instr-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.instr-row p{font-size:13px;color:var(--blue-dark);line-height:1.5}
+.progress-bar{height:5px;background:var(--border);border-radius:3px;margin-bottom:.75rem;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s}
+.group-tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;margin-bottom:6px;font-weight:600}
+.gt-r{background:#dcfce7;color:#166534}.gt-i{background:#dbeafe;color:#1e40af}
+.gt-w{background:#fef3c7;color:#92400e}.gt-t{background:#fce7f3;color:#9d174d}
+.gt-f{background:#ede9fe;color:#5b21b6}.gt-s{background:#d1fae5;color:#065f46}
+.gt-sp{background:#ffedd5;color:#9a3412}.gt-u{background:#f1f5f9;color:#334155}
+.gt-m{background:#fef9c3;color:#713f12}
+.q-num{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.q-title{font-size:17px;font-weight:700;color:var(--blue-dark);margin-bottom:2px}
+.q-sub{font-size:13px;color:var(--muted);margin-bottom:6px}
+.q-desc{font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5;background:var(--blue-light);padding:8px 12px;border-radius:8px}
+select{width:100%;font-size:15px;color:var(--text);background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;appearance:auto}
+select:focus{outline:none;border-color:var(--blue)}
+.btn-row{display:flex;gap:8px;margin-top:1.25rem;justify-content:space-between;align-items:center}
+.btn-right{display:flex;gap:8px}
+button{font-size:14px;padding:11px 22px;border-radius:10px;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-weight:600;transition:all .15s}
+button:hover{background:var(--blue-light);border-color:var(--blue-mid)}
+button:active{transform:scale(.98)}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+button.primary:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
+.voter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:1.5rem}
+.voter-btn{padding:11px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-size:13px;color:var(--text);cursor:pointer;text-align:left;line-height:1.4;font-weight:500;transition:all .15s}
+.voter-btn:hover{background:var(--blue-light);border-color:var(--blue-mid)}
+.voter-btn.voted{border-color:var(--green);background:var(--green-bg);color:#14532d}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center}
+.stat-num{font-size:26px;font-weight:700;color:var(--blue-dark)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.tab-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{font-size:12px;padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);font-weight:600}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.nom-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.65rem}
+.nom-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;color:var(--blue-dark)}
+.winner-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--green-bg);color:var(--green);font-weight:700}
+.result-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.result-row:last-child{border-bottom:none}
+.result-name{font-size:12px;color:var(--text);min-width:150px;flex-shrink:0}
+.result-bar-wrap{flex:1;height:7px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.result-bar{height:100%;background:var(--blue);border-radius:4px}
+.result-count{font-size:12px;color:var(--muted);min-width:20px;text-align:right;font-weight:600}
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-done{background:var(--green)}.dot-wait{background:#cbd5e1}
+.loader{text-align:center;padding:3rem;color:var(--muted);font-size:15px}
+.error-msg{background:var(--red-bg);border:1px solid #fca5a5;border-radius:10px;padding:.85rem 1rem;font-size:13px;color:var(--red);margin-bottom:1rem}
+.admin-link{font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;margin-top:.75rem;display:inline-block;font-weight:600}
+.reset-link{font-size:13px;color:var(--red);cursor:pointer;text-decoration:underline;font-weight:600}
+.nav-dots{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem}
+.nav-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--white);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;transition:all .15s}
+.nav-dot:hover{border-color:var(--blue-mid);color:var(--blue)}
+.nav-dot.current{border:2.5px solid var(--blue);color:var(--blue);background:var(--blue-light)}
+.nav-dot.answered{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.nav-dot.skipped{background:var(--amber-bg);border-color:#f59e0b;color:var(--amber)}
+.confirm-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.confirm-row:last-child{border-bottom:none}
+.confirm-val{font-size:12px;font-weight:600;color:var(--green)}
+.confirm-val.skip{color:var(--muted)}
+.pwd-box{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:2rem;max-width:340px;margin:3rem auto}
+.pwd-box h2{font-size:18px;font-weight:700;color:var(--blue-dark);margin-bottom:.5rem}
+.pwd-box p{font-size:13px;color:var(--muted);margin-bottom:1.25rem}
+.pwd-box input{width:100%;font-size:16px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:.75rem;color:var(--text)}
+.pwd-box input:focus{outline:none;border-color:var(--blue)}
+.pwd-err{font-size:12px;color:var(--red);margin-bottom:.5rem}
+.done-screen{text-align:center;padding:2rem 1rem}
+.done-icon{width:64px;height:64px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.done-icon svg{width:32px;height:32px;stroke:var(--green);fill:none;stroke-width:2.5}
+@media(max-width:480px){
+  .voter-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .nav-dot{width:26px;height:26px;font-size:10px}
+  .btn-row{flex-wrap:wrap}
+  .btn-right{flex:1;justify-content:flex-end}
+  h2{font-size:18px}
+  .q-title{font-size:15px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="pg-loader" class="page active">
+  <div class="loader">Завантаження...</div>
+</div>
+
+<div id="pg-voter-select" class="page">
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div>
+    <div class="logo-text"><h1>Номінації курсу</h1><p>Спортивний менеджмент</p></div>
+  </div>
+  <div id="error-area"></div>
+  <div class="instr-card">
+    <h3>Як це працює</h3>
+    <div class="instr-row"><div class="instr-num">1</div><p>Оберіть своє ім'я зі списку нижче</p></div>
+    <div class="instr-row"><div class="instr-num">2</div><p>Для кожної номінації оберіть одногрупника, який найкраще відповідає опису. Кожну людину можна обрати лише один раз</p></div>
+    <div class="instr-row"><div class="instr-num">3</div><p>MVP обирається першим — це найважливіша номінація</p></div>
+    <div class="instr-row"><div class="instr-num">4</div><p>Після того, як всі учасники будуть розподілені, голосування надсилається автоматично</p></div>
+    <div class="instr-row"><div class="instr-num">5</div><p>Голосування анонімне — інші студенти не бачать ваших відповідей</p></div>
+  </div>
+  <p style="font-size:14px;font-weight:700;color:var(--blue-dark);margin-bottom:.75rem">Оберіть своє ім'я:</p>
+  <div class="voter-grid" id="voter-grid"></div>
+  <span class="admin-link" onclick="askAdminPassword()">Панель викладача</span>
+</div>
+
+<div id="pg-voting" class="page">
+  <div style="margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <h2 id="voter-name-display"></h2>
+      <p class="sub" id="q-counter-text" style="margin-bottom:0"></p>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="nav-dots" id="nav-dots"></div>
+  <div id="q-area"></div>
+  <div class="btn-row">
+    <button id="btn-prev" onclick="prevQ()">Назад</button>
+    <div class="btn-right">
+      <button class="primary" id="btn-next" onclick="nextQ()">Далі</button>
+    </div>
+  </div>
+</div>
+
+<div id="pg-done" class="page">
+  <div class="done-screen">
+    <div class="done-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2 style="margin-bottom:.5rem">Дякуємо!</h2>
+    <p class="sub">Ваші голоси надіслано. Результати будуть оголошені викладачем.</p>
+    <div class="stats-grid" id="done-stats" style="margin-top:1.5rem"></div>
+    <button onclick="showPage('pg-voter-select')" style="width:100%;margin-top:.5rem">Проголосувати іншим студентом</button>
+  </div>
+</div>
+
+<div id="pg-saving" class="page">
+  <div class="loader">Надсилаємо голоси...</div>
+</div>
+
+<div id="pg-pwd" class="page">
+  <div class="pwd-box">
+    <h2>Панель викладача</h2>
+    <p>Введіть пароль для доступу до результатів</p>
+    <input type="password" id="pwd-input" placeholder="Пароль" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div class="pwd-err" id="pwd-err"></div>
+    <button class="primary" onclick="checkPwd()" style="width:100%">Увійти</button>
+    <br><br>
+    <button onclick="showPage('pg-voter-select')" style="width:100%">Повернутись</button>
+  </div>
+</div>
+
+<div id="pg-admin" class="page">
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div>
+    <div class="logo-text"><h1>Результати</h1><p id="admin-subtitle"></p></div>
+  </div>
+  <div class="stats-grid" id="admin-stats"></div>
+  <div class="tab-row" id="admin-tabs"></div>
+  <div id="admin-content"></div>
+  <div style="margin-top:1.5rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding-top:1rem;border-top:1px solid var(--border)">
+    <button onclick="goAdmin()">Оновити</button>
+    <button onclick="showPage('pg-voter-select')">До голосування</button>
+    <span class="reset-link" onclick="confirmReset()">Скинути всі голоси</span>
+  </div>
+</div>
+
+</div>
+<script>
+const API_KEY='$2a$10$sob4JoxEjCWHuzxWpPEZkuH29lhni9FEMn6ThLwGaKcbuheV4duoe';
+const JSONBIN_URL='https://api.jsonbin.io/v3/b';
+const ADMIN_PASSWORD='12';
+let BIN_ID=null;
+const BIN_KEY='sm_voting_bin_v4';
+
+const STUDENTS=[
+  "Алібаєв Сефер","Болдескул Георг","Бурховецький Денис","Вернидуб Віталій",
+  "Волков Вадим","Глущенко Андрій","Доманська Наталія","Лобас Едуард",
+  "Міхальков Максим","Мосін Станіслав","Полегенько Павло","Притула Ярослав",
+  "Романенко Андрій","Ручка Петро","Селезньов Євген","Стецій Назар",
+  "Тумановський Володимир","Хайтул Микола","Хомченовський Дмитро","Чіголя Артур Вікторович"
+];
+
+const NOMS=[
+  {id:"n31",g:"m",tag:"MVP курсу",title:"MVP курсу",sub:"найкращий з найкращих",desc:"Один студент, який справив найбільший вплив на курс загалом — і результатами, і участю, і атмосферою. Якби довелось обрати лише одну людину — це вона.",mvp:true},
+  {id:"n01",g:"r",tag:"Результат і прогрес",title:"Прорив сезону",sub:"як Erling Haaland",desc:"Хто зробив найпомітніший стрибок у розвитку? Можливо, на початку курсу людина виглядала скромно, але до фіналу повністю розкрилась і здивувала всіх."},
+  {id:"n02",g:"r",tag:"Результат і прогрес",title:"Найкращий бомбардир",sub:"як Cristiano Ronaldo",desc:"Хто стабільно давав найвищий результат? Завжди підготовлений, завжди здає вчасно, завжди на рівні або вище. Машина продуктивності."},
+  {id:"n03",g:"r",tag:"Результат і прогрес",title:"Найкращий асистент",sub:"як Kevin De Bruyne",desc:"Хто допомагав іншим ставати кращими? Пояснював матеріал, ділився ресурсами, підтримував команду — і через це загальний рівень групи ріс."},
+  {id:"n04",g:"r",tag:"Результат і прогрес",title:"Game changer",sub:"як Lionel Messi",desc:"Хто змінював хід дискусії або завдання одним нестандартним ходом? Коли здавалось, що все зрозуміло — ця людина пропонувала зовсім інший кут зору."},
+  {id:"n05",g:"i",tag:"Інтелект і мислення",title:"Генератор незручних питань",sub:"як Pep Guardiola",desc:"Хто ставив питання, які змушували зупинитись і подумати? Не щоб зірвати заняття, а щоб докопатись до суті — навіть якщо це некомфортно."},
+  {id:"n06",g:"i",tag:"Інтелект і мислення",title:"Аналітичний мікроскоп",sub:"як Xavi Hernández",desc:"Хто розбирав кожну тему до найдрібніших деталей? Поки інші дивились на ціле, ця людина бачила зв'язки і нюанси, які інші пропускали."},
+  {id:"n07",g:"i",tag:"Інтелект і мислення",title:"Скаут від народження",sub:"як Monchi",desc:"Хто вмів помічати сильні сторони і потенціал — в людях, ідеях, ситуаціях? Ця людина бачила цінність там, де інші ще не розглянули."},
+  {id:"n08",g:"i",tag:"Інтелект і мислення",title:"Енциклопедія курсу",sub:"як Andrea Pirlo",desc:"Хто найкраще знав матеріал і міг пояснити будь-яку тему? До кого зверталися, коли щось незрозуміло — і завжди отримували чітку відповідь?"},
+  {id:"n09",g:"i",tag:"Інтелект і мислення",title:"Реаліст сезону",sub:"як José Mourinho",desc:"Хто тверезо оцінював ситуацію без зайвого оптимізму? Коли всі захоплювались ідеєю, ця людина спокійно вказувала на ризики і реальні обмеження."},
+  {id:"n10",g:"w",tag:"Дисципліна і робота",title:"Гросмейстер дедлайнів",sub:"як Luka Modrić",desc:"Хто ніколи не запізнювався з дедлайнами і завжди був підготовлений? Стабільність і системність — навіть коли іншим було складно."},
+  {id:"n11",g:"w",tag:"Дисципліна і робота",title:"Чемпіон самостійної роботи",sub:"як Robert Lewandowski",desc:"Хто найбільше працював самостійно, без нагадувань і підштовхувань? Внутрішня мотивація, дисципліна і відповідальність перед собою."},
+  {id:"n12",g:"w",tag:"Дисципліна і робота",title:"Надійне плече",sub:"як Sergio Busquets",desc:"На кого можна було завжди розраховувати? Не найгучніший і не найпомітніший — але коли потрібна допомога або підтримка, ця людина завжди поряд."},
+  {id:"n13",g:"w",tag:"Дисципліна і робота",title:"Майстер лаконічності",sub:"як Paolo Maldini",desc:"Хто вмів висловлювати думки чітко і коротко? Одне речення — і все зрозуміло. Без зайвих слів, без «ну, типу», без розмивання суті."},
+  {id:"n14",g:"t",tag:"Командна взаємодія",title:"Миротворець роздягальні",sub:"як Andrés Iniesta",desc:"Хто підтримував позитивну атмосферу в групі? Знімав напруження, мирив погляди, робив так, що всім було комфортно — навіть у складних дискусіях."},
+  {id:"n15",g:"t",tag:"Командна взаємодія",title:"Капітан курсу",sub:"як Carles Puyol",desc:"Хто брав на себе лідерство, коли це було потрібно? Не обов'язково найгучніший — але за ним йшли, йому довіряли, він організовував і надихав."},
+  {id:"n16",g:"t",tag:"Командна взаємодія",title:"Конструктивний критик",sub:"як Carlo Ancelotti",desc:"Хто давав фідбек, який реально допомагав? Не просто 'добре' або 'погано' — а конкретно, по суті, з повагою і з орієнтацією на покращення."},
+  {id:"n17",g:"t",tag:"Командна взаємодія",title:"Драйвер змін",sub:"як Jürgen Klopp",desc:"Хто рухав процес вперед і заряджав інших? Ентузіазм, ініціатива, бажання зробити більше — і це передавалось іншим."},
+  {id:"n18",g:"f",tag:"Гнучкість і рішення",title:"Головний по «Плану Б»",sub:"як Thomas Müller",desc:"Хто знаходив альтернативи, коли перший план не спрацьовував? Не панікував, не здавався — а швидко перебудовувався і знаходив інший шлях."},
+  {id:"n19",g:"f",tag:"Гнучкість і рішення",title:"Антикризовий менеджер",sub:"як Diego Simeone",desc:"Хто ставав ефективнішим у складних, стресових ситуаціях? Коли дедлайн горів або щось йшло не так — ця людина збирала себе і справлялась."},
+  {id:"n20",g:"f",tag:"Гнучкість і рішення",title:"Майстер адаптації",sub:"як Zlatan Ibrahimović",desc:"Хто найкраще підлаштовувався під нові умови, формати і завдання? Зміни не лякали — ця людина швидко перебудовувалась і залишалась ефективною."},
+  {id:"n21",g:"s",tag:"Стиль і вплив",title:"Візуальний естет",sub:"як David Beckham",desc:"Хто подавав матеріали найякісніше з точки зору оформлення та структури? Презентації, документи, слайди — охайно, зрозуміло, з увагою до деталей."},
+  {id:"n22",g:"s",tag:"Стиль і вплив",title:"PRO Storyteller",sub:"як Thierry Henry",desc:"Хто найкраще вмів розповідати і пояснювати? Не просто передавав факти, а будував наратив — з початком, кульмінацією, висновком. Слухати було цікаво."},
+  {id:"n23",g:"s",tag:"Стиль і вплив",title:"Переговорник рівня Райоли",sub:"як Mino Raiola",desc:"Хто демонстрував найкращі навички переговорів і аргументації? Вмів відстоювати позицію, знаходити компроміс і переконувати — чітко і з повагою."},
+  {id:"n24",g:"s",tag:"Стиль і вплив",title:"Сірий кардинал",sub:"як Florentino Pérez",desc:"Хто впливав на процеси і рішення без зайвого галасу? Непомітно, але ефективно — ця людина формувала порядок денний, не перебуваючи в центрі уваги."},
+  {id:"n25",g:"sp",tag:"Спеціальні ролі",title:"Джокер",sub:"як Olivier Giroud",desc:"Хто давав результат саме тоді, коли це було найпотрібніше? Можливо, не завжди в топі — але в критичний момент виходив і вирішував."},
+  {id:"n26",g:"sp",tag:"Спеціальні ролі",title:"Агент 007",sub:"як N'Golo Kanté",desc:"Хто робив велику роботу, не привертаючи до себе уваги? Тихо, якісно, надійно. Без цієї людини багато б не відбулось — але вона ніколи не виставляла це напоказ."},
+  {id:"n27",g:"sp",tag:"Спеціальні ролі",title:"Візіонер гри",sub:"як Kevin De Bruyne",desc:"Хто бачив картину наперед — куди рухається тема, яке рішення спрацює, що буде важливим через кілька кроків? Стратегічне мислення і передбачення."},
+  {id:"n28",g:"u",tag:"Український контекст",title:"Архітектор системи",sub:"як Darijo Srna",desc:"Хто будував структуру там, де її не було? Створював процеси, налагоджував порядок, думав системно — і це полегшувало роботу всім навколо."},
+  {id:"n29",g:"u",tag:"Український контекст",title:"Баланс менеджменту",sub:"як Serhii Palkin",desc:"Хто вмів поєднувати стратегічне бачення з практичними діями? Не лише планував, але й виконував — і при цьому тримав фокус на головному."},
+  {id:"n30",g:"u",tag:"Український контекст",title:"Локальний стратег",sub:"як Yevhen Krasnikov",desc:"Хто найкраще розумів контекст і вмів працювати в реальних обмеженнях? Не ідеальні умови — але ця людина знаходила рішення саме в тих обставинах, що є."}
+];
+
+const TAG_CLASS={r:"gt-r",i:"gt-i",w:"gt-w",t:"gt-t",f:"gt-f",s:"gt-s",sp:"gt-sp",u:"gt-u",m:"gt-m"};
+let currentVoter=null,currentQ=0,answers={},remoteData={};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function initBin(){
+  BIN_ID=localStorage.getItem(BIN_KEY);
+  if(BIN_ID){
+    try{
+      const r=await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+      if(r.ok){const d=await r.json();remoteData=d.record||{};buildVoterGrid();showPage('pg-voter-select');return;}
+    }catch(e){}
+  }
+  try{
+    const r=await fetch(JSONBIN_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':'SM-Voting-v4'},
+      body:JSON.stringify({votes:{}})
+    });
+    if(r.ok){
+      const d=await r.json();BIN_ID=d.metadata.id;localStorage.setItem(BIN_KEY,BIN_ID);
+      remoteData={votes:{}};buildVoterGrid();showPage('pg-voter-select');
+    } else {
+      showPage('pg-voter-select');
+      document.getElementById('error-area').innerHTML='<div class="error-msg">Помилка з\'єднання. Перевірте мережу.</div>';
+    }
+  }catch(e){
+    showPage('pg-voter-select');
+    document.getElementById('error-area').innerHTML='<div class="error-msg">Немає з\'єднання з мережею.</div>';
+  }
+}
+
+async function loadRemote(){
+  try{
+    const r=await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+    if(r.ok){const d=await r.json();remoteData=d.record||{};return true;}
+  }catch(e){}
+  return false;
+}
+
+async function saveRemote(){
+  try{
+    const r=await fetch(`${JSONBIN_URL}/${BIN_ID}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+      body:JSON.stringify(remoteData)
+    });
+    return r.ok;
+  }catch(e){return false;}
+}
+
+function buildVoterGrid(){
+  const votes=remoteData.votes||{};
+  const grid=document.getElementById('voter-grid');
+  grid.innerHTML='';
+  STUDENTS.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='voter-btn'+(votes[s]?' voted':'');
+    btn.innerHTML=s+(votes[s]?'<br><span style="font-size:11px;font-weight:600">Проголосував</span>':'');
+    btn.onclick=()=>startVoting(s);
+    grid.appendChild(btn);
+  });
+}
+
+async function startVoting(name){
+  await loadRemote();
+  const votes=remoteData.votes||{};
+  if(votes[name]){
+    if(!confirm(name+' вже проголосував. Проголосувати заново?')) return;
+  }
+  currentVoter=name;
+  answers={};
+  currentQ=0;
+  document.getElementById('voter-name-display').textContent=name;
+  showPage('pg-voting');
+  renderQ();
+}
+
+function availableStudents(excludeQIdx){
+  const chosen=new Set();
+  NOMS.forEach((n,i)=>{
+    if(i!==excludeQIdx && answers[n.id] && answers[n.id]!=='__skip'){
+      chosen.add(answers[n.id]);
+    }
+  });
+  return STUDENTS.filter(s=>s!==currentVoter&&!chosen.has(s));
+}
+
+function allAssigned(){
+  const eligible=STUDENTS.filter(s=>s!==currentVoter);
+  const chosen=new Set();
+  NOMS.forEach(n=>{if(answers[n.id]&&answers[n.id]!=='__skip') chosen.add(answers[n.id]);});
+  return chosen.size>=eligible.length;
+}
+
+function nextUnanswered(fromIdx){
+  for(let i=fromIdx+1;i<NOMS.length;i++){
+    if(!answers[NOMS[i].id]) return i;
+  }
+  for(let i=0;i<=fromIdx;i++){
+    if(!answers[NOMS[i].id]) return i;
+  }
+  return -1;
+}
+
+function renderNavDots(){
+  const container=document.getElementById('nav-dots');
+  container.innerHTML='';
+  NOMS.forEach((n,i)=>{
+    const dot=document.createElement('button');
+    dot.className='nav-dot';
+    dot.textContent=i+1;
+    const val=answers[n.id];
+    if(i===currentQ) dot.classList.add('current');
+    else if(val&&val!=='__skip') dot.classList.add('answered');
+    else if(val==='__skip') dot.classList.add('answered');
+    dot.title=n.title;
+    dot.onclick=()=>{saveCurrentSel();currentQ=i;renderQ();};
+    container.appendChild(dot);
+  });
+}
+
+function saveCurrentSel(){
+  const sel=document.getElementById('sel-nom');
+  if(sel&&sel.value) answers[NOMS[currentQ].id]=sel.value;
+}
+
+function renderQ(){
+  const nom=NOMS[currentQ];
+  const total=NOMS.length;
+  const answered=NOMS.filter(n=>answers[n.id]).length;
+  const remaining=STUDENTS.filter(s=>s!==currentVoter).length - new Set(NOMS.filter(n=>answers[n.id]&&answers[n.id]!=='__skip').map(n=>answers[n.id])).size;
+
+  document.getElementById('q-counter-text').textContent=
+    `Питання ${currentQ+1} з ${total} · залишилось розподілити: ${remaining}`;
+  document.getElementById('prog-fill').style.width=Math.round((answered/total)*100)+'%';
+
+  renderNavDots();
+
+  const opts=availableStudents(currentQ);
+  const cur=answers[nom.id]||'';
+
+  let optHTML='<option value="">— оберіть одногрупника —</option>';
+  opts.forEach(s=>{
+    optHTML+=`<option value="${s}"${cur===s?' selected':''}>${s}</option>`;
+  });
+
+  document.getElementById('q-area').innerHTML=`
+    <div class="card">
+      <div class="q-num">Питання ${currentQ+1}</div>
+      <span class="group-tag ${TAG_CLASS[nom.g]}">${nom.tag}</span>
+      <div class="q-title">${nom.title}</div>
+      <div class="q-sub">${nom.sub}</div>
+      <div class="q-desc">${nom.desc}</div>
+      <select id="sel-nom" onchange="onSelect('${nom.id}',this.value)">${optHTML}</select>
+    </div>`;
+
+  document.getElementById('btn-prev').style.visibility=currentQ===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=currentQ===total-1?'Завершити':'Далі';
+}
+
+function onSelect(nomId, val){
+  if(!val) return;
+  answers[nomId]=val;
+  renderNavDots();
+  if(allAssigned()){
+    NOMS.forEach(n=>{if(!answers[n.id]) answers[n.id]='__skip';});
+    submitVotes();
+  }
+}
+
+function nextQ(){
+  saveCurrentSel();
+  const nom=NOMS[currentQ];
+  if(nom.mvp&&!answers[nom.id]){
+    alert('MVP — обов\'язкове поле. Будь ласка, оберіть студента.');
+    return;
+  }
+  if(currentQ<NOMS.length-1){
+    currentQ++;
+    renderQ();
+  } else {
+    const next=nextUnanswered(-1);
+    if(next>=0){
+      currentQ=next;
+      renderQ();
+    } else {
+      NOMS.forEach(n=>{if(!answers[n.id]) answers[n.id]='__skip';});
+      submitVotes();
+    }
+  }
+}
+
+function prevQ(){
+  saveCurrentSel();
+  if(currentQ>0){currentQ--;renderQ();}
+}
+
+async function submitVotes(){
+  showPage('pg-saving');
+  await loadRemote();
+  if(!remoteData.votes) remoteData.votes={};
+  remoteData.votes[currentVoter]={...answers};
+  const ok=await saveRemote();
+  if(ok){
+    const total=Object.keys(remoteData.votes).length;
+    document.getElementById('done-stats').innerHTML=`
+      <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">проголосувало</div></div>
+      <div class="stat-box"><div class="stat-num">${STUDENTS.length-total}</div><div class="stat-lbl">очікуємо</div></div>
+      <div class="stat-box"><div class="stat-num">${STUDENTS.length}</div><div class="stat-lbl">усього</div></div>`;
+    buildVoterGrid();
+    showPage('pg-done');
+  } else {
+    showPage('pg-voter-select');
+    document.getElementById('error-area').innerHTML='<div class="error-msg">Помилка збереження. Спробуйте ще раз.</div>';
+  }
+}
+
+function askAdminPassword(){
+  document.getElementById('pwd-input').value='';
+  document.getElementById('pwd-err').textContent='';
+  showPage('pg-pwd');
+}
+
+function checkPwd(){
+  const val=document.getElementById('pwd-input').value;
+  if(val===ADMIN_PASSWORD){
+    goAdmin();
+  } else {
+    document.getElementById('pwd-err').textContent='Невірний пароль. Спробуйте ще раз.';
+  }
+}
+
+function calcTally(nomId){
+  const votes=remoteData.votes||{};
+  const t={};
+  STUDENTS.forEach(s=>t[s]=0);
+  Object.values(votes).forEach(v=>{
+    const p=v[nomId];
+    if(p&&p!=='__skip'&&t[p]!==undefined) t[p]++;
+  });
+  return t;
+}
+
+async function goAdmin(){
+  showPage('pg-loader');
+  await loadRemote();
+  const votes=remoteData.votes||{};
+  const total=Object.keys(votes).length;
+  document.getElementById('admin-subtitle').textContent=`Проголосували ${total} з ${STUDENTS.length} студентів`;
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">проголосувало</div></div>
+    <div class="stat-box"><div class="stat-num">${STUDENTS.length-total}</div><div class="stat-lbl">очікуємо</div></div>
+    <div class="stat-box"><div class="stat-num">${NOMS.length}</div><div class="stat-lbl">номінацій</div></div>`;
+  const groups=[...new Set(NOMS.map(n=>n.tag))];
+  const tabs=document.getElementById('admin-tabs');
+  tabs.innerHTML='';
+  ['Всі номінації','Загальний рейтинг','Статус голосування',...groups].forEach((g,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tab'+(i===0?' active':'');
+    btn.textContent=g;
+    btn.onclick=()=>{tabs.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderAdmin(g);};
+    tabs.appendChild(btn);
+  });
+  renderAdmin('Всі номінації');
+  showPage('pg-admin');
+}
+
+function renderAdmin(view){
+  const votes=remoteData.votes||{};
+  const el=document.getElementById('admin-content');
+  const voterCount=Object.keys(votes).length||1;
+
+  if(view==='Статус голосування'){
+    el.innerHTML=STUDENTS.map(s=>`
+      <div class="status-row">
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="dot ${votes[s]?'dot-done':'dot-wait'}"></span>${s}
+        </span>
+        <span style="font-size:12px;font-weight:600;color:${votes[s]?'var(--green)':'#aaa'}">${votes[s]?'Готово':'Очікується'}</span>
+      </div>`).join('');
+    return;
+  }
+
+  if(view==='Загальний рейтинг'){
+    const totals={};
+    STUDENTS.forEach(s=>totals[s]=0);
+    NOMS.forEach(n=>{const t=calcTally(n.id);STUDENTS.forEach(s=>totals[s]+=t[s]);});
+    const sorted=STUDENTS.slice().sort((a,b)=>totals[b]-totals[a]);
+    const mx=totals[sorted[0]]||1;
+    el.innerHTML=sorted.map((s,i)=>`
+      <div class="result-row">
+        <span class="result-name"><span style="color:var(--muted);margin-right:6px;font-size:11px">${i+1}</span>${s}</span>
+        <div class="result-bar-wrap"><div class="result-bar" style="width:${Math.round(totals[s]/mx*100)}%"></div></div>
+        <span class="result-count">${totals[s]}</span>
+      </div>`).join('');
+    return;
+  }
+
+  const nomsToShow=view==='Всі номінації'?NOMS:NOMS.filter(n=>n.tag===view);
+  el.innerHTML=nomsToShow.map(nom=>{
+    const tally=calcTally(nom.id);
+    const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]).filter(([,v])=>v>0);
+    const winner=sorted[0];
+    const rows=sorted.slice(0,5).map(([name,cnt])=>`
+      <div class="result-row">
+        <span class="result-name" style="font-size:12px">${name}</span>
+        <div class="result-bar-wrap"><div class="result-bar" style="width:${Math.round(cnt/voterCount*100)}%"></div></div>
+        <span class="result-count">${cnt}</span>
+      </div>`).join('');
+    return `<div class="nom-card">
+      <div style="margin-bottom:4px"><span class="group-tag ${TAG_CLASS[nom.g]}">${nom.tag}</span></div>
+      <div class="nom-title">${nom.title}
+        <span style="font-weight:400;font-size:12px;color:var(--muted)">— ${nom.sub}</span>
+        ${winner?`<span class="winner-badge">${winner[0].split(' ')[0]}: ${winner[1]}</span>`:''}
+      </div>
+      ${sorted.length?rows:'<div style="font-size:12px;color:#aaa">Голосів ще немає</div>'}
+    </div>`;
+  }).join('');
+}
+
+async function confirmReset(){
+  if(!confirm('Скинути ВСІ голоси? Це незворотно.')) return;
+  showPage('pg-loader');
+  remoteData={votes:{}};
+  await saveRemote();
+  buildVoterGrid();
+  showPage('pg-voter-select');
+}
+
+initBin();
+</script>
+</body>
+</html>
