@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Голосування — Спортивний менеджмент</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.container{max-width:640px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.page{display:none}.page.active{display:block}
+h1{font-size:22px;font-weight:600;margin-bottom:4px}
+h2{font-size:18px;font-weight:600;margin-bottom:4px}
+.sub{font-size:14px;color:#666;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e8e8e5;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.progress-bar{height:4px;background:#e8e8e5;border-radius:2px;margin-bottom:.75rem;overflow:hidden}
+.progress-fill{height:100%;background:#378ADD;border-radius:2px;transition:width .3s}
+.q-meta{font-size:11px;color:#999;margin-bottom:3px}
+.group-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.gt-r{background:#EAF3DE;color:#3B6D11}.gt-i{background:#E6F1FB;color:#185FA5}
+.gt-w{background:#FAEEDA;color:#854F0B}.gt-t{background:#FBEAF0;color:#993556}
+.gt-f{background:#EEEDFE;color:#534AB7}.gt-s{background:#E1F5EE;color:#0F6E56}
+.gt-sp{background:#FAECE7;color:#993C1D}.gt-u{background:#F1EFE8;color:#5F5E5A}
+.gt-m{background:#FFF3CD;color:#856404}
+.q-title{font-size:16px;font-weight:600;margin-bottom:3px}
+.q-sub{font-size:13px;color:#666;margin-bottom:4px}
+.q-desc{font-size:13px;color:#888;margin-bottom:12px}
+select{width:100%;font-size:15px;color:#1a1a1a;background:#f5f5f3;border:1px solid #d0d0cc;border-radius:8px;padding:10px 12px;cursor:pointer;appearance:auto}
+select:focus{outline:none;border-color:#378ADD}
+.btn-row{display:flex;gap:8px;margin-top:1.25rem;justify-content:space-between;align-items:center}
+.btn-right{display:flex;gap:8px}
+button{font-size:14px;padding:10px 22px;border-radius:8px;cursor:pointer;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;font-weight:500}
+button:hover{background:#f0f0ed}
+button:active{transform:scale(.98)}
+button.primary{background:#378ADD;color:#fff;border-color:#378ADD}
+button.primary:hover{background:#185FA5;border-color:#185FA5}
+button.skip-btn{font-size:13px;padding:8px 16px;color:#888;border-color:#e0e0dc}
+button.skip-btn:hover{color:#555;background:#f5f5f3}
+.voter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:1.5rem}
+.voter-btn{padding:10px 12px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;font-size:13px;color:#1a1a1a;cursor:pointer;text-align:left;line-height:1.4}
+.voter-btn:hover{background:#f0f0ed}
+.voter-btn.voted{border-color:#3B6D11;background:#EAF3DE;color:#2a5a0a}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
+.stat-box{background:#fff;border:1px solid #e8e8e5;border-radius:8px;padding:.75rem;text-align:center}
+.stat-num{font-size:24px;font-weight:600}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.tab-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #d0d0cc;cursor:pointer;background:#fff;color:#666}
+.tab.active{background:#378ADD;color:#fff;border-color:#378ADD}
+.nom-card{background:#fff;border:1px solid #e8e8e5;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.nom-title{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.winner-badge{font-size:11px;padding:2px 8px;border-radius:6px;background:#EAF3DE;color:#3B6D11;font-weight:500}
+.result-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #f0f0ed}
+.result-row:last-child{border-bottom:none}
+.result-name{font-size:12px;color:#1a1a1a;min-width:150px;flex-shrink:0}
+.result-bar-wrap{flex:1;height:6px;background:#e8e8e5;border-radius:3px;overflow:hidden}
+.result-bar{height:100%;background:#378ADD;border-radius:3px}
+.result-count{font-size:12px;color:#666;min-width:20px;text-align:right}
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0ed;font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-done{background:#3B6D11}.dot-wait{background:#ccc}
+.loader{text-align:center;padding:2rem;color:#888;font-size:14px}
+.error-msg{background:#FCEBEB;border:1px solid #F09595;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#A32D2D;margin-bottom:1rem}
+.admin-link{font-size:12px;color:#888;cursor:pointer;text-decoration:underline;margin-top:.5rem;display:inline-block}
+.reset-link{font-size:12px;color:#A32D2D;cursor:pointer;text-decoration:underline}
+.skipped-note{font-size:12px;color:#a06000;background:#FFF3CD;border:1px solid #f5d87a;border-radius:6px;padding:5px 10px;margin-top:8px}
+.nav-dots{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem}
+.nav-dot{width:28px;height:28px;border-radius:50%;border:1px solid #d0d0cc;background:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#888;font-weight:500}
+.nav-dot:hover{background:#f0f0ed}
+.nav-dot.current{border:2px solid #378ADD;color:#378ADD;background:#EAF3DE}
+.nav-dot.answered{background:#EAF3DE;border-color:#3B6D11;color:#3B6D11}
+.nav-dot.skipped{background:#FFF3CD;border-color:#e0a800;color:#a06000}
+.confirm-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0ed;font-size:13px}
+.confirm-row:last-child{border-bottom:none}
+.confirm-val{font-size:12px;color:#3B6D11}
+.confirm-val.skip{color:#888}
+.confirm-val.pending{color:#a06000}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="pg-loader" class="page active">
+  <div class="loader">Завантаження...</div>
+</div>
+
+<div id="pg-voter-select" class="page">
+  <div style="margin-bottom:1.5rem">
+    <h1>Голосування</h1>
+    <p class="sub">Спортивний менеджмент · Оберіть своє ім'я</p>
+  </div>
+  <div id="error-area"></div>
+  <div class="voter-grid" id="voter-grid"></div>
+  <div style="font-size:12px;color:#999">Голосування анонімне. Результати бачить лише викладач.</div>
+  <br><span class="admin-link" onclick="goAdmin()">Результати (викладач)</span>
+</div>
+
+<div id="pg-voting" class="page">
+  <div style="margin-bottom:.75rem">
+    <h2 id="voter-name-display"></h2>
+    <p class="sub" id="q-counter-text"></p>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="nav-dots" id="nav-dots"></div>
+  <div id="q-area"></div>
+  <div class="btn-row">
+    <button id="btn-prev" onclick="prevQ()">Назад</button>
+    <div class="btn-right">
+      <button class="skip-btn" id="btn-skip" onclick="skipQ()">Пропустити</button>
+      <button class="primary" id="btn-next" onclick="nextQ()">Далі</button>
+    </div>
+  </div>
+</div>
+
+<div id="pg-confirm" class="page">
+  <div style="margin-bottom:1rem">
+    <h2>Перевірте відповіді</h2>
+    <p class="sub" id="confirm-sub"></p>
+  </div>
+  <div id="confirm-content"></div>
+  <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap">
+    <button onclick="goBackToSkipped()">Повернутись до пропущених</button>
+    <button class="primary" onclick="submitVotes()">Надіслати голоси</button>
+  </div>
+</div>
+
+<div id="pg-saving" class="page">
+  <div class="loader">Зберігаємо голоси...</div>
+</div>
+
+<div id="pg-done" class="page">
+  <div style="margin-bottom:1.5rem">
+    <h1>Голоси прийнято!</h1>
+    <p class="sub">Дякуємо. Результати будуть оголошені викладачем.</p>
+  </div>
+  <div class="stats-grid" id="done-stats"></div>
+  <button onclick="showPage('pg-voter-select')" style="width:100%;margin-bottom:8px">Проголосувати іншим студентом</button>
+  <br><span class="admin-link" onclick="goAdmin()">Переглянути результати (викладач)</span>
+</div>
+
+<div id="pg-admin" class="page">
+  <div style="margin-bottom:1rem">
+    <h1>Результати</h1>
+    <p class="sub" id="admin-subtitle"></p>
+  </div>
+  <div class="stats-grid" id="admin-stats"></div>
+  <div class="tab-row" id="admin-tabs"></div>
+  <div id="admin-content"></div>
+  <div style="margin-top:1.25rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <button onclick="showPage('pg-voter-select')">До голосування</button>
+    <button class="primary" onclick="goAdmin()">Оновити</button>
+    <span class="reset-link" onclick="confirmReset()">Скинути всі голоси</span>
+  </div>
+</div>
+
+</div>
+<script>
+const API_KEY='$2a$10$sob4JoxEjCWHuzxWpPEZkuH29lhni9FEMn6ThLwGaKcbuheV4duoe';
+const JSONBIN_URL='https://api.jsonbin.io/v3/b';
+let BIN_ID=null;
+const BIN_KEY='sm_voting_bin_v3';
+
+const STUDENTS=[
+  "Алібаєв Сефер","Болдескул Георг","Бурховецький Денис","Вернидуб Віталій",
+  "Волков Вадим","Глущенко Андрій","Доманська Наталія","Лобас Едуард",
+  "Міхальков Максим","Мосін Станіслав","Полегенько Павло","Притула Ярослав",
+  "Романенко Андрій","Ручка Петро","Селезньов Євген","Стецій Назар",
+  "Тумановський Володимир","Хайтул Микола","Хомченовський Дмитро","Чіголя Артур Вікторович"
+];
+
+const NOMS=[
+  {id:"n31",g:"m",tag:"MVP курсу",title:"MVP курсу",sub:"найкращий з найкращих",desc:"Одна людина, яка найбільше вплинула на курс",mvp:true},
+  {id:"n01",g:"r",tag:"Результат і прогрес",title:"Прорив сезону",sub:"як Erling Haaland",desc:"Найбільший ріст і прогрес за курс"},
+  {id:"n02",g:"r",tag:"Результат і прогрес",title:"Найкращий бомбардир",sub:"як Cristiano Ronaldo",desc:"Максимальний результат і продуктивність"},
+  {id:"n03",g:"r",tag:"Результат і прогрес",title:"Найкращий асистент",sub:"як Kevin De Bruyne",desc:"Допомагає іншим ставати сильнішими"},
+  {id:"n04",g:"r",tag:"Результат і прогрес",title:"Game changer",sub:"як Lionel Messi",desc:"Змінює хід гри нестандартними рішеннями"},
+  {id:"n05",g:"i",tag:"Інтелект і мислення",title:"Генератор незручних питань",sub:"як Pep Guardiola",desc:"Ставить питання, які ламають поверхневе мислення"},
+  {id:"n06",g:"i",tag:"Інтелект і мислення",title:"Аналітичний мікроскоп",sub:"як Xavi Hernández",desc:"Глибоко занурюється в деталі"},
+  {id:"n07",g:"i",tag:"Інтелект і мислення",title:"Скаут від народження",sub:"як Monchi",desc:"Відчуває талант і потенціал"},
+  {id:"n08",g:"i",tag:"Інтелект і мислення",title:"Енциклопедія курсу",sub:"як Andrea Pirlo",desc:"Найглибше розуміння матеріалу"},
+  {id:"n09",g:"i",tag:"Інтелект і мислення",title:"Реаліст сезону",sub:"як José Mourinho",desc:"Тверезо оцінює ситуації"},
+  {id:"n10",g:"w",tag:"Дисципліна і робота",title:"Гросмейстер дедлайнів",sub:"як Luka Modrić",desc:"Системність і стабільність у виконанні"},
+  {id:"n11",g:"w",tag:"Дисципліна і робота",title:"Чемпіон самостійної роботи",sub:"як Robert Lewandowski",desc:"Максимальна самодисципліна"},
+  {id:"n12",g:"w",tag:"Дисципліна і робота",title:"Надійне плече",sub:"як Sergio Busquets",desc:"Людина, на яку можна покластись"},
+  {id:"n13",g:"w",tag:"Дисципліна і робота",title:"Майстер лаконічності",sub:"як Paolo Maldini",desc:"Чітко, коротко, по суті"},
+  {id:"n14",g:"t",tag:"Командна взаємодія",title:"Миротворець роздягальні",sub:"як Andrés Iniesta",desc:"Створює здорову атмосферу"},
+  {id:"n15",g:"t",tag:"Командна взаємодія",title:"Капітан курсу",sub:"як Carles Puyol",desc:"Лідер, який веде інших"},
+  {id:"n16",g:"t",tag:"Командна взаємодія",title:"Конструктивний критик",sub:"як Carlo Ancelotti",desc:"Дає корисний і збалансований фідбек"},
+  {id:"n17",g:"t",tag:"Командна взаємодія",title:"Драйвер змін",sub:"як Jürgen Klopp",desc:"Рухає процес вперед"},
+  {id:"n18",g:"f",tag:"Гнучкість і рішення",title:"Головний по «Плану Б»",sub:"як Thomas Müller",desc:"Знаходить альтернативи, коли план А не працює"},
+  {id:"n19",g:"f",tag:"Гнучкість і рішення",title:"Антикризовий менеджер",sub:"як Diego Simeone",desc:"Ефективний у складних ситуаціях"},
+  {id:"n20",g:"f",tag:"Гнучкість і рішення",title:"Майстер адаптації",sub:"як Zlatan Ibrahimović",desc:"Швидко підлаштовується під нові умови"},
+  {id:"n21",g:"s",tag:"Стиль і вплив",title:"Візуальний естет",sub:"як David Beckham",desc:"Сильна і якісна подача матеріалів"},
+  {id:"n22",g:"s",tag:"Стиль і вплив",title:"PRO Storyteller",sub:"як Thierry Henry",desc:"Вміє цікаво і чітко доносити думки"},
+  {id:"n23",g:"s",tag:"Стиль і вплив",title:"Переговорник рівня Райоли",sub:"як Mino Raiola",desc:"Сильні навички переговорів"},
+  {id:"n24",g:"s",tag:"Стиль і вплив",title:"Сірий кардинал",sub:"як Florentino Pérez",desc:"Впливає без публічності"},
+  {id:"n25",g:"sp",tag:"Спеціальні ролі",title:"Джокер",sub:"як Olivier Giroud",desc:"Дає результат у потрібний момент"},
+  {id:"n26",g:"sp",tag:"Спеціальні ролі",title:"Агент 007",sub:"як N'Golo Kanté",desc:"Робить велику роботу без зайвої уваги"},
+  {id:"n27",g:"sp",tag:"Спеціальні ролі",title:"Візіонер гри",sub:"як Kevin De Bruyne",desc:"Бачить гру і процеси на кілька кроків вперед"},
+  {id:"n28",g:"u",tag:"Український контекст",title:"Архітектор системи",sub:"як Darijo Srna",desc:"Будує структуру і процеси"},
+  {id:"n29",g:"u",tag:"Український контекст",title:"Баланс менеджменту",sub:"як Serhii Palkin",desc:"Поєднує стратегію і операційку"},
+  {id:"n30",g:"u",tag:"Український контекст",title:"Локальний стратег",sub:"як Yevhen Krasnikov",desc:"Добре розуміє контекст і працює в обмеженнях"}
+];
+
+const TAG_CLASS={r:"gt-r",i:"gt-i",w:"gt-w",t:"gt-t",f:"gt-f",s:"gt-s",sp:"gt-sp",u:"gt-u",m:"gt-m"};
+let currentVoter=null,currentQ=0,answers={},remoteData={};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function initBin(){
+  BIN_ID=localStorage.getItem(BIN_KEY);
+  if(BIN_ID){
+    try{
+      const r=await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+      if(r.ok){const d=await r.json();remoteData=d.record||{};buildVoterGrid();showPage('pg-voter-select');return;}
+    }catch(e){}
+  }
+  try{
+    const r=await fetch(JSONBIN_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':'SM-Voting-v3'},
+      body:JSON.stringify({votes:{}})
+    });
+    if(r.ok){
+      const d=await r.json();
+      BIN_ID=d.metadata.id;
+      localStorage.setItem(BIN_KEY,BIN_ID);
+      remoteData={votes:{}};
+      buildVoterGrid();
+      showPage('pg-voter-select');
+    } else {
+      showPage('pg-voter-select');
+      document.getElementById('error-area').innerHTML='<div class="error-msg">Помилка з\'єднання. Перевірте мережу.</div>';
+    }
+  }catch(e){
+    showPage('pg-voter-select');
+    document.getElementById('error-area').innerHTML='<div class="error-msg">Немає з\'єднання з мережею.</div>';
+  }
+}
+
+async function loadRemote(){
+  try{
+    const r=await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+    if(r.ok){const d=await r.json();remoteData=d.record||{};return true;}
+  }catch(e){}
+  return false;
+}
+
+async function saveRemote(){
+  try{
+    const r=await fetch(`${JSONBIN_URL}/${BIN_ID}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+      body:JSON.stringify(remoteData)
+    });
+    return r.ok;
+  }catch(e){return false;}
+}
+
+function buildVoterGrid(){
+  const votes=remoteData.votes||{};
+  const grid=document.getElementById('voter-grid');
+  grid.innerHTML='';
+  STUDENTS.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='voter-btn'+(votes[s]?' voted':'');
+    btn.innerHTML=s+(votes[s]?'<br><span style="font-size:11px">Проголосував</span>':'');
+    btn.onclick=()=>startVoting(s);
+    grid.appendChild(btn);
+  });
+}
+
+async function startVoting(name){
+  await loadRemote();
+  const votes=remoteData.votes||{};
+  if(votes[name]){
+    if(!confirm(name+' вже проголосував. Проголосувати заново?')) return;
+  }
+  currentVoter=name;
+  answers=votes[name]?{...votes[name]}:{};
+  currentQ=0;
+  document.getElementById('voter-name-display').textContent=name;
+  showPage('pg-voting');
+  renderQ();
+}
+
+function getChosen(excludeIdx){
+  const chosen=new Set();
+  NOMS.forEach((n,i)=>{
+    if(i!==excludeIdx && answers[n.id] && answers[n.id]!=='__skip' && answers[n.id]!=='__skipped'){
+      chosen.add(answers[n.id]);
+    }
+  });
+  return chosen;
+}
+
+function getAvailable(qIdx){
+  const chosen=getChosen(qIdx);
+  const isMvp=NOMS[qIdx].mvp;
+  const opts=STUDENTS.filter(s=>s!==currentVoter&&!chosen.has(s));
+  if(!isMvp) opts.push('__skip');
+  return opts;
+}
+
+function countAnswered(){
+  return NOMS.filter(n=>answers[n.id]&&answers[n.id]!=='__skipped').length;
+}
+
+function countSkipped(){
+  return NOMS.filter(n=>!answers[n.id]||answers[n.id]==='__skipped').length;
+}
+
+function allStudentsAssigned(){
+  const used=new Set();
+  NOMS.forEach(n=>{
+    if(answers[n.id]&&answers[n.id]!=='__skip'&&answers[n.id]!=='__skipped') used.add(answers[n.id]);
+  });
+  const available=STUDENTS.filter(s=>s!==currentVoter);
+  return used.size>=available.length;
+}
+
+function renderNavDots(){
+  const container=document.getElementById('nav-dots');
+  container.innerHTML='';
+  NOMS.forEach((n,i)=>{
+    const dot=document.createElement('button');
+    dot.className='nav-dot';
+    dot.textContent=i+1;
+    const val=answers[n.id];
+    if(i===currentQ) dot.classList.add('current');
+    else if(val&&val!=='__skipped') dot.classList.add('answered');
+    else if(val==='__skipped') dot.classList.add('skipped');
+    dot.onclick=()=>{saveCurrentSelection();currentQ=i;renderQ();};
+    container.appendChild(dot);
+  });
+}
+
+function saveCurrentSelection(){
+  const sel=document.getElementById('sel-nom');
+  if(sel&&sel.value) answers[NOMS[currentQ].id]=sel.value;
+}
+
+function renderQ(){
+  const nom=NOMS[currentQ];
+  const total=NOMS.length;
+  const answered=countAnswered();
+  const skipped=countSkipped();
+
+  document.getElementById('q-counter-text').textContent=
+    `Відповіли: ${answered} з ${total}${skipped?` · пропущено: ${skipped}`:''}`;
+  document.getElementById('prog-fill').style.width=Math.round((answered/total)*100)+'%';
+
+  renderNavDots();
+
+  const opts=getAvailable(currentQ);
+  const cur=answers[nom.id]||'';
+  const wasSkipped=cur==='__skipped';
+
+  let optHTML='<option value="">— оберіть —</option>';
+  opts.forEach(s=>{
+    const lbl=s==='__skip'?'Утримуюсь':s;
+    const sel=(cur===s&&!wasSkipped)?' selected':'';
+    optHTML+=`<option value="${s}"${sel}>${lbl}</option>`;
+  });
+
+  const skipNote=wasSkipped?'<div class="skipped-note">Питання пропущено — оберіть зі списку або залиште порожнім</div>':'';
+
+  document.getElementById('q-area').innerHTML=`
+    <div class="card">
+      <div class="q-meta">Питання ${currentQ+1}</div>
+      <span class="group-tag ${TAG_CLASS[nom.g]}">${nom.tag}</span>
+      <div class="q-title">${nom.title}</div>
+      <div class="q-sub">${nom.sub}</div>
+      <div class="q-desc">${nom.desc}</div>
+      <select id="sel-nom" onchange="onSelectChange('${nom.id}',this.value)">${optHTML}</select>
+      ${skipNote}
+    </div>`;
+
+  document.getElementById('btn-prev').style.visibility=currentQ===0?'hidden':'visible';
+
+  const allDone=skipped===0;
+  document.getElementById('btn-next').textContent=
+    currentQ===total-1?(allDone?'Переглянути і надіслати':'Далі'):'Далі';
+
+  document.getElementById('btn-skip').style.display=nom.mvp?'none':'inline-block';
+
+  if(allStudentsAssigned()) autoFillSkipped();
+}
+
+function onSelectChange(nomId, val){
+  answers[nomId]=val;
+  if(allStudentsAssigned()) autoFillSkipped();
+  renderNavDots();
+  const skipped=countSkipped();
+  document.getElementById('q-counter-text').textContent=
+    `Відповіли: ${countAnswered()} з ${NOMS.length}${skipped?` · пропущено: ${skipped}`:''}`;
+}
+
+function autoFillSkipped(){
+  NOMS.forEach(n=>{
+    if(!answers[n.id]||answers[n.id]==='__skipped') answers[n.id]='__skip';
+  });
+}
+
+function nextQ(){
+  saveCurrentSelection();
+  const nom=NOMS[currentQ];
+  if(nom.mvp&&(!answers[nom.id]||answers[nom.id]==='__skipped')){
+    alert('MVP — обов\'язкове поле. Будь ласка, оберіть студента.');
+    return;
+  }
+  if(currentQ<NOMS.length-1){
+    currentQ++;
+    renderQ();
+  } else {
+    showConfirm();
+  }
+}
+
+function prevQ(){
+  saveCurrentSelection();
+  if(currentQ>0){currentQ--;renderQ();}
+}
+
+function skipQ(){
+  answers[NOMS[currentQ].id]='__skipped';
+  if(currentQ<NOMS.length-1){currentQ++;renderQ();}
+  else showConfirm();
+}
+
+function goBackToSkipped(){
+  const firstSkipped=NOMS.findIndex(n=>!answers[n.id]||answers[n.id]==='__skipped');
+  if(firstSkipped>=0){
+    currentQ=firstSkipped;
+    showPage('pg-voting');
+    renderQ();
+  } else {
+    showPage('pg-voting');
+    renderQ();
+  }
+}
+
+function showConfirm(){
+  autoFillSkipped();
+  const skippedNoms=NOMS.filter(n=>answers[n.id]==='__skip'&&!n.mvp);
+  const answeredNoms=NOMS.filter(n=>answers[n.id]&&answers[n.id]!=='__skip');
+
+  document.getElementById('confirm-sub').textContent=
+    `Обрали: ${answeredNoms.length} · Утримуюсь: ${skippedNoms.length}`;
+
+  let html='<div class="card" style="margin-bottom:1rem">';
+  NOMS.forEach(n=>{
+    const val=answers[n.id];
+    const display=(!val||val==='__skip')?'Утримуюсь':val;
+    const cls=(!val||val==='__skip')?'skip':'';
+    html+=`<div class="confirm-row">
+      <span style="font-size:13px;color:#555">${n.title}</span>
+      <span class="confirm-val ${cls}">${display}</span>
+    </div>`;
+  });
+  html+='</div>';
+
+  document.getElementById('confirm-content').innerHTML=html;
+
+  const hasSkipped=skippedNoms.length>0;
+  const backBtn=document.querySelector('#pg-confirm button:first-child');
+  if(backBtn) backBtn.style.display=hasSkipped?'inline-block':'none';
+
+  showPage('pg-confirm');
+}
+
+async function submitVotes(){
+  autoFillSkipped();
+  showPage('pg-saving');
+  await loadRemote();
+  if(!remoteData.votes) remoteData.votes={};
+  remoteData.votes[currentVoter]={...answers};
+  const ok=await saveRemote();
+  if(ok){
+    const total=Object.keys(remoteData.votes).length;
+    document.getElementById('done-stats').innerHTML=`
+      <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">проголосувало</div></div>
+      <div class="stat-box"><div class="stat-num">${STUDENTS.length-total}</div><div class="stat-lbl">очікуємо</div></div>
+      <div class="stat-box"><div class="stat-num">${STUDENTS.length}</div><div class="stat-lbl">усього</div></div>`;
+    buildVoterGrid();
+    showPage('pg-done');
+  } else {
+    showPage('pg-voter-select');
+    document.getElementById('error-area').innerHTML='<div class="error-msg">Помилка збереження. Спробуйте ще раз.</div>';
+  }
+}
+
+function calcTally(nomId){
+  const votes=remoteData.votes||{};
+  const t={};
+  STUDENTS.forEach(s=>t[s]=0);
+  Object.values(votes).forEach(v=>{
+    const p=v[nomId];
+    if(p&&p!=='__skip'&&t[p]!==undefined) t[p]++;
+  });
+  return t;
+}
+
+async function goAdmin(){
+  showPage('pg-loader');
+  await loadRemote();
+  const votes=remoteData.votes||{};
+  const total=Object.keys(votes).length;
+  document.getElementById('admin-subtitle').textContent=`Проголосували ${total} з ${STUDENTS.length} студентів`;
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">проголосувало</div></div>
+    <div class="stat-box"><div class="stat-num">${STUDENTS.length-total}</div><div class="stat-lbl">очікуємо</div></div>
+    <div class="stat-box"><div class="stat-num">${NOMS.length}</div><div class="stat-lbl">номінацій</div></div>`;
+  const groups=[...new Set(NOMS.map(n=>n.tag))];
+  const tabs=document.getElementById('admin-tabs');
+  tabs.innerHTML='';
+  ['Всі номінації','Загальний рейтинг','Статус голосування',...groups].forEach((g,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tab'+(i===0?' active':'');
+    btn.textContent=g;
+    btn.onclick=()=>{tabs.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderAdmin(g);};
+    tabs.appendChild(btn);
+  });
+  renderAdmin('Всі номінації');
+  showPage('pg-admin');
+}
+
+function renderAdmin(view){
+  const votes=remoteData.votes||{};
+  const el=document.getElementById('admin-content');
+  const maxV=Object.keys(votes).length||1;
+
+  if(view==='Статус голосування'){
+    el.innerHTML=STUDENTS.map(s=>`
+      <div class="status-row">
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="dot ${votes[s]?'dot-done':'dot-wait'}"></span>${s}
+        </span>
+        <span style="font-size:12px;color:${votes[s]?'#3B6D11':'#aaa'}">${votes[s]?'Готово':'Очікується'}</span>
+      </div>`).join('');
+    return;
+  }
+
+  if(view==='Загальний рейтинг'){
+    const totals={};
+    STUDENTS.forEach(s=>totals[s]=0);
+    NOMS.forEach(n=>{const t=calcTally(n.id);STUDENTS.forEach(s=>totals[s]+=t[s]);});
+    const sorted=STUDENTS.slice().sort((a,b)=>totals[b]-totals[a]);
+    const mx=totals[sorted[0]]||1;
+    el.innerHTML=sorted.map(s=>`
+      <div class="result-row">
+        <span class="result-name">${s}</span>
+        <div class="result-bar-wrap"><div class="result-bar" style="width:${Math.round(totals[s]/mx*100)}%"></div></div>
+        <span class="result-count">${totals[s]}</span>
+      </div>`).join('');
+    return;
+  }
+
+  const nomsToShow=view==='Всі номінації'?NOMS:NOMS.filter(n=>n.tag===view);
+  el.innerHTML=nomsToShow.map(nom=>{
+    const tally=calcTally(nom.id);
+    const sorted=Object.entries(tally).sort((a,b)=>b[1]-a[1]).filter(([,v])=>v>0);
+    const winner=sorted[0];
+    const rows=sorted.slice(0,5).map(([name,cnt])=>`
+      <div class="result-row">
+        <span class="result-name" style="font-size:12px">${name}</span>
+        <div class="result-bar-wrap"><div class="result-bar" style="width:${Math.round(cnt/maxV*100)}%"></div></div>
+        <span class="result-count">${cnt}</span>
+      </div>`).join('');
+    return `<div class="nom-card">
+      <div style="margin-bottom:4px"><span class="group-tag ${TAG_CLASS[nom.g]}">${nom.tag}</span></div>
+      <div class="nom-title">${nom.title}
+        <span style="font-weight:400;font-size:12px;color:#888">— ${nom.sub}</span>
+        ${winner?`<span class="winner-badge">${winner[0].split(' ')[0]}: ${winner[1]}</span>`:''}
+      </div>
+      ${sorted.length?rows:'<div style="font-size:12px;color:#aaa">Голосів ще немає</div>'}
+    </div>`;
+  }).join('');
+}
+
+async function confirmReset(){
+  if(!confirm('Скинути ВСІ голоси? Це незворотно.')) return;
+  showPage('pg-loader');
+  remoteData={votes:{}};
+  await saveRemote();
+  buildVoterGrid();
+  showPage('pg-voter-select');
+}
+
+initBin();
+</script>
+</body>
+</html>
